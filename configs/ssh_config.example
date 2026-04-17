@@ -1,0 +1,11 @@
+# Add this to ~/.ssh/config on your Mac/PC
+# Then connect with just: ssh jetson
+
+Host jetson
+    HostName 192.168.1.XXX
+    User YOUR_USERNAME
+    IdentityFile ~/.ssh/id_ed25519_jetson
+    IdentitiesOnly yes
+    # macOS only:
+    UseKeychain yes
+    AddKeysToAgent yes

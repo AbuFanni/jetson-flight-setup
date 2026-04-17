@@ -1,0 +1,12 @@
+[Unit]
+Description=Set Jetson power mode and pin clocks at boot
+After=multi-user.target nvpmodel.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nvpmodel -m 2
+ExecStartPost=/usr/bin/jetson_clocks
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
