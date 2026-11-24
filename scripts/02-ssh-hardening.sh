@@ -6,6 +6,12 @@ set -e
 
 echo "=== Jetson Flight Setup: SSH Hardening ==="
 
+# SSH login gets limited to the user running this script, so root would lock you out
+if [ "$(id -u)" -eq 0 ]; then
+    echo "Run this as your normal user, not with sudo."
+    exit 1
+fi
+
 # Install openssh-server if not present
 echo "[1/4] Ensuring SSH server is installed..."
 sudo apt install -y openssh-server
@@ -18,7 +24,7 @@ sudo ssh-keygen -A
 echo "[2/4] Hardening SSH configuration..."
 sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup
 
-sudo tee /etc/ssh/sshd_config.d/hardened.conf > /dev/null << 'SSHEOF'
+sudo tee /etc/ssh/sshd_config.d/hardened.conf > /dev/null << SSHEOF
 # Key-only authentication (no passwords over SSH)
 PasswordAuthentication no
 PubkeyAuthentication yes
@@ -28,8 +34,8 @@ UsePAM yes
 # Disable root login
 PermitRootLogin no
 
-# Only allow your user (change 'x' to your username)
-AllowUsers x
+# Only allow the user who ran the setup script
+AllowUsers $USER
 
 # Security hardening
 MaxAuthTries 3
@@ -60,6 +66,7 @@ echo ""
 echo "=== SSH Hardened ==="
 echo "Password login is now DISABLED."
 echo "Only key-based authentication will work."
+echo "Only the user '$USER' can log in over SSH."
 echo ""
 echo "Optional — add to your Mac's ~/.ssh/config:"
 echo ""

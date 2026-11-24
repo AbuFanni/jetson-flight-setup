@@ -3,3 +3,25 @@
 *.swp
 *.bak
 __pycache__/
+
+# Never publish these: map tiles and indexes show where you fly
+data/
+tiles/
+index/
+*.faiss
+
+# Model files and flight logs
+*.engine
+*.onnx
+*.pt
+*.pth
+*.tlog
+*.bin
+logs/
+
+# Keys and secrets
+.env
+*.pem
+*.key
+id_ed25519*
+id_rsa*

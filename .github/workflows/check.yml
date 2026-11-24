@@ -1,0 +1,19 @@
+name: Script checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bash syntax
+        run: |
+          for f in scripts/*.sh; do
+            bash -n "$f" && echo "ok: $f"
+          done
+      - name: ShellCheck (errors only)
+        run: shellcheck --severity=error scripts/*.sh

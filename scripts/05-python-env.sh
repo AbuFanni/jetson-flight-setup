@@ -53,13 +53,19 @@ if torch.cuda.is_available():
 # Install flight stack packages
 echo ""
 echo "[4/5] Installing flight stack packages..."
+# numpy 2 breaks the PyTorch 2.3.0 Jetson wheel (torch.from_numpy fails), so stay on 1.x
 pip install \
-    numpy \
+    "numpy<2" \
     scipy \
     faiss-cpu \
     onnxruntime \
     pymavlink \
+    pyserial \
     mavsdk
+
+# Serial ports (/dev/ttyTHS1, /dev/ttyACM0) are owned by the dialout group,
+# MAVLink to the flight controller needs it
+sudo usermod -aG dialout "$USER"
 
 # Verify installations
 echo ""
@@ -70,6 +76,7 @@ packages = {
     'faiss': 'FAISS',
     'onnxruntime': 'ONNXRuntime',
     'pymavlink': 'pymavlink',
+    'serial': 'pyserial',
     'mavsdk': 'MAVSDK',
     'numpy': 'NumPy',
     'scipy': 'SciPy',
@@ -95,6 +102,7 @@ except ImportError:
 echo ""
 echo "=== Python Environment Ready ==="
 echo "Activate with: source ~/drone/venv/bin/activate"
+echo "Log out and back in before using the serial port (dialout group applies at next login)."
 echo ""
 echo "Directory structure:"
 echo "  ~/drone/app/        — your mission code"
