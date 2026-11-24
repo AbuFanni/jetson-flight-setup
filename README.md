@@ -34,7 +34,7 @@ After running through this setup, your Jetson will have:
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/jetson-flight-setup.git
+git clone https://github.com/AbuFanni/jetson-flight-setup.git
 cd jetson-flight-setup
 
 # Run scripts in order on a fresh Jetson (as your normal user, not root)
@@ -55,7 +55,7 @@ Each script is independent — if one fails, fix the issue and re-run it. No nee
 | Script | What It Does | Time |
 |--------|-------------|------|
 | `01-network.sh` | Installs NetworkManager, connects WiFi, enables auto-reconnect | 2 min |
-| `02-ssh-hardening.sh` | Generates ed25519 key, disables password auth, configures firewall | 1 min |
+| `02-ssh-hardening.sh` | Key-only SSH: disables password and root login, limits login to your user | 1 min |
 | `03-performance.sh` | Sets MAXN_SUPER power mode, installs systemd service for boot persistence | 1 min |
 | `04-cuda-stack.sh` | Verifies CUDA, installs missing libs, sets LD_LIBRARY_PATH | 3 min |
 | `05-python-env.sh` | Creates venv, installs PyTorch (Jetson wheel), FAISS, pymavlink, MAVSDK | 10 min |
@@ -86,11 +86,13 @@ The Jetson Orin Nano Super has 4 power modes:
 
 For flight, **15W is the sweet spot** — good performance without excessive heat in an enclosed shell. MAXN_SUPER is great for bench testing and model optimization.
 
+The module has a 25 W input limit. In a bench test with CPU, memory and GPU all at full load, MAXN_SUPER went over it and the board cut the CPU clock in half. Measured numbers for each mode, and how to check your own workload, are in [docs/measurements.md](docs/measurements.md).
+
 ## Thermal Notes
 
 - Dev kit heatsink + fan is adequate for open-air testing
 - In an enclosed drone shell, add ventilation slots near the Jetson
-- Throttling starts at 85-90C — monitor with `jtop`
+- Kernel throttling for heat starts at 99C and shutdown is at 104C (the 70C trip is only a hot-surface warning). Monitor with `jtop`
 - Consider Noctua 40mm fan upgrade for quieter, better airflow
 
 ## Tested With
