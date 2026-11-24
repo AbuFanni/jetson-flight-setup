@@ -60,6 +60,7 @@ pip install \
     faiss-cpu \
     onnxruntime \
     pymavlink \
+    pyserial \
     mavsdk
 
 # Serial ports (/dev/ttyTHS1, /dev/ttyACM0) are owned by the dialout group,
@@ -75,6 +76,7 @@ packages = {
     'faiss': 'FAISS',
     'onnxruntime': 'ONNXRuntime',
     'pymavlink': 'pymavlink',
+    'serial': 'pyserial',
     'mavsdk': 'MAVSDK',
     'numpy': 'NumPy',
     'scipy': 'SciPy',
