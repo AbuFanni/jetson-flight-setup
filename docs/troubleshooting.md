@@ -83,6 +83,13 @@ echo $LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/usr/local/cuda-12.6/lib64:/usr/local/cuda-12.6/targets/aarch64-linux/lib:$LD_LIBRARY_PATH
 ```
 
+### torch.from_numpy fails with "Numpy is not available"
+The PyTorch 2.3.0 Jetson wheel was built against numpy 1.x. If pip pulled numpy 2:
+```bash
+source ~/drone/venv/bin/activate
+pip install "numpy<2"
+```
+
 ### Missing libnvToolsExt.so.1
 ```bash
 sudo apt install -y libnvtoolsext1
@@ -132,6 +139,13 @@ sudo systemctl enable jetson-maxperf.service
 sudo systemctl status jetson-maxperf.service
 ```
 
+If the status shows `Failed to locate executable /usr/bin/nvpmodel`, the service was created by an older version of `03-performance.sh`. Fix the path:
+```bash
+sudo sed -i 's#/usr/bin/nvpmodel#/usr/sbin/nvpmodel#' /etc/systemd/system/jetson-maxperf.service
+sudo systemctl daemon-reload
+sudo systemctl restart jetson-maxperf.service
+```
+
 ---
 
 ## Camera
@@ -151,6 +165,17 @@ sudo dmesg | grep -i arducam
 ### v4l2-ctl not found
 ```bash
 sudo apt install -y v4l-utils
+```
+
+---
+
+## Flight Controller
+
+### Permission denied opening /dev/ttyTHS1 or /dev/ttyACM0
+The serial ports belong to the `dialout` group:
+```bash
+sudo usermod -aG dialout $USER
+# then log out and back in
 ```
 
 ---

@@ -12,10 +12,10 @@ sudo nvpmodel -q
 
 echo ""
 echo "Available power modes:"
-echo "  0 = 7W (low power)"
-echo "  1 = 15W (flight sweet spot)"
+echo "  0 = 15W (flight sweet spot)"
+echo "  1 = 25W (high performance)"
 echo "  2 = MAXN_SUPER (max performance)"
-echo "  3 = 25W (high performance)"
+echo "  3 = 7W (low power)"
 echo ""
 read -p "Select power mode [2]: " POWER_MODE
 POWER_MODE=${POWER_MODE:-2}
@@ -34,7 +34,7 @@ After=multi-user.target nvpmodel.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/nvpmodel -m $POWER_MODE
+ExecStart=/usr/sbin/nvpmodel -m $POWER_MODE
 ExecStartPost=/usr/bin/jetson_clocks
 RemainAfterExit=yes
 

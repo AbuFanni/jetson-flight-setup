@@ -79,9 +79,9 @@ The Jetson Orin Nano Super has 4 power modes:
 
 | Mode | ID | CPU | GPU | Power | Use Case |
 |------|----|-----|-----|-------|----------|
-| 7W | 0 | 4 cores, low clock | Low | 7W | Idle / standby |
-| 15W | 1 | 6 cores | Medium | 15W | Flight (good balance) |
-| 25W | 3 | 6 cores | High | 25W | Heavy compute |
+| 7W | 3 | 4 cores, low clock | Low | 7W | Idle / standby |
+| 15W | 0 | 6 cores | Medium | 15W | Flight (good balance) |
+| 25W | 1 | 6 cores | High | 25W | Heavy compute |
 | MAXN_SUPER | 2 | 6 cores, max clock | Max | ~25W+ | Bench testing / burst |
 
 For flight, **15W is the sweet spot** — good performance without excessive heat in an enclosed shell. MAXN_SUPER is great for bench testing and model optimization.
