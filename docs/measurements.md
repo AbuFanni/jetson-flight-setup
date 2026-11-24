@@ -51,11 +51,12 @@ A real vision pipeline uses far less CPU and memory than this test, so it may st
 | State | Input power |
 |---|---|
 | Desktop install, idle | 4.9 W |
-| Headless install, clocks scaling | 7.3 W |
-| Headless install after `jetson_clocks` | 8.9 W |
+| Headless install, no monitor attached at boot | 5.0 W |
+| Headless install, monitor attached at boot | 7.3 W |
+| Headless install, monitor attached, after `jetson_clocks` | 8.9 W |
 
+- A monitor costs about 2.3 W on a headless install. If one is plugged in at boot, the firmware switches the display on for the text console and nothing ever switches it off, even if you unplug the cable later. Booted without a monitor, the same install idles at 5.0 W, and 1.8 W of the drop is on the SoC rail where the display block sits. (Unused services were also trimmed between those two readings, so the split is not exact.)
 - `jetson_clocks` costs about 1.6 W at idle. It pins all six cores at 1728 MHz, disables the CPU idle states, keeps the GPU powered at 1020 MHz and locks the memory clock at 3199 MHz.
-- The headless install idles 2.4 W higher than the desktop one, all of it outside the CPU and GPU rail. With a monitor plugged in at boot, the display block stays powered for the text console (the `disp` power domain is on and the display clocks are running). That is the likely cause, but it has not been confirmed by switching the display off.
 
 ## Temperatures
 
@@ -79,10 +80,31 @@ echo 1 | sudo tee /sys/devices/system/cpu/cpu{4,5}/cpuidle/state1/disable
 
 These runs were on an idle system. Latency under a real load was not measured.
 
-## Memory and boot
+## Trimming a headless install
 
-- Idle memory used: about 410 MB on the headless install, 2.3 GB on the desktop install.
-- `reboot` to SSH answering: 60-67 s. The kernel took 8.5 s and userspace 10.9 s, and 7 s of that userspace time was `NetworkManager-wait-online.service`.
+Same board, same SSD, before and after switching off what a headless flight computer does not use.
+
+| | Before | After |
+|---|---|---|
+| Startup (kernel + userspace) | 19.5 s (8.5 + 10.9) | 13.2 s (8.6 + 4.6) |
+| Memory used at idle | about 410 MB | 297 MB |
+
+For comparison, the full desktop install on the same board uses 2.3 GB at idle.
+
+What was switched off (`sudo systemctl disable --now <name>`):
+
+- `NetworkManager-wait-online.service`. This one alone was 7 s of the startup time.
+- `bluetooth`, `ModemManager`, `docker`, `docker.socket`, `containerd`, `isc-dhcp-server`, `isc-dhcp-server6`
+- `nvmemwarning`, `nvidia-pva-allowd` (this module has no PVA), `haveged`, `networkd-dispatcher`, `rtkit-daemon`, `lxcfs`, `seatd`, `rsyslog`, `syslog.socket`
+- `jtop`. Start it when you want the dashboard: `sudo systemctl start jtop`
+- Timers: `apt-daily`, `apt-daily-upgrade`, `man-db`, `motd-news`, `apport-autoreport`, `e2scrub_all`, `dpkg-db-backup`
+- The audio server: `sudo systemctl --global mask pipewire.service pipewire.socket pipewire-media-session.service`
+
+Also changed: the default target is `multi-user.target` (`sudo systemctl set-default multi-user.target`), and the boot service that runs `jetson_clocks` was left disabled for these readings.
+
+Still running afterwards: NetworkManager, wpa_supplicant, ssh, nvargus-daemon (cameras), nvfancontrol, nvpmodel, nv-tee-supplicant, nvphs, nvs-service and the systemd basics. After the changes the board started with no failed units.
+
+Only disable what you do not use. If you need Bluetooth or Docker, leave them on.
 
 ## Limits of these numbers
 
